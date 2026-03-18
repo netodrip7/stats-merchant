@@ -16,11 +16,14 @@ body {background:#0a192f;color:white;}
 """, unsafe_allow_html=True)
 
 # --------- HEADER ----------
-st.markdown('<div class="title">STAT MERCHANT</div>', unsafe_allow_html=True)
+st.markdown('<div class="title">STATS MERCHANT</div>', unsafe_allow_html=True)
 st.markdown('<div class="tag">ball knowledge backed by stats</div>', unsafe_allow_html=True)
-st.markdown('<div class="small">here for the first time? please wait for 30-50 seconds. it’ll be so much quicker next time.</div>', unsafe_allow_html=True)
+st.markdown('<div class="small">here for the first time? please wait for 30-50 seconds. it’ll be so much quicker the next time i promise.</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="desc">FPL managers, tap in. This is your differential factory.</div>', unsafe_allow_html=True)
+st.markdown('<div class="desc">FPL managers, tap in. This is your differential factory.
+                               Get clean data, fixture swings, xG juice, and captaincy 
+                                calls that actually hit. No more picking your team on 
+                               vibes only,  we move with data now. GET THAT RANK UP.</div>', unsafe_allow_html=True)
 
 # --------- LOAD ----------
 @st.cache_data(ttl=300)
