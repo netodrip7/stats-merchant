@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 def process_data(teams, playerstats, players, player_gw_stats):
+    teams = teams.rename(columns={"id": "team_id"})
 
     player_gw_stats = player_gw_stats.rename(columns={"id": "player_id"})
     playerstats = playerstats.rename(columns={"id": "player_id"})
