@@ -32,22 +32,23 @@ st.set_page_config(page_title="Stats Merchant", layout="wide")
 st.markdown("""
 <style>
 
-body {
-    background-color: #0b0f1a;
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    background-color: #05070d;
     color: #e6edf3;
 }
 
 .title {
     text-align: center;
-    color: #2f81f7;
-    font-size: 64px;
-    font-weight: 800;
-    letter-spacing: 2px;
+    font-size: 72px;
+    font-weight: 900;
+    color: #1f6feb;
+    letter-spacing: 3px;
 }
 
 .tagline {
     text-align: center;
-    color: #8b949e;
+    color: #9aa4b2;
     font-size: 18px;
 }
 
@@ -59,29 +60,30 @@ body {
 
 .center-text {
     text-align: center;
-    max-width: 700px;
+    max-width: 650px;
     margin: auto;
+    line-height: 1.8;
     color: #c9d1d9;
-    line-height: 1.6;
 }
 
-/* Tables */
 [data-testid="stDataFrame"] {
-    background-color: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 10px;
+    background-color: #0b0f17;
+    border-radius: 12px;
+    border: 1px solid #1f2937;
 }
 
-/* Headers */
 thead tr th {
-    color: #2f81f7 !important;
+    color: #1f6feb !important;
     font-weight: 600 !important;
 }
 
-/* Rows */
 tbody tr {
-    background-color: #0d1117 !important;
-    color: #c9d1d9 !important;
+    color: #d1d5db !important;
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
 }
 
 </style>
@@ -95,8 +97,15 @@ st.markdown('<div class="title">STATS MERCHANT</div>', unsafe_allow_html=True)
 st.markdown('<div class="tagline">ball knowledge backed by stats</div>', unsafe_allow_html=True)
 st.markdown('<div class="smalltext">here for the first time? please wait for 30–50 seconds. it’ll be so much quicker next time.</div>', unsafe_allow_html=True)
 
-st.markdown('<div class="center-text">FPL managers, tap in.<br>This ain’t just another stats site.<br>This is your differential factory.<br>Get clean data, fixture swings, xG juice, and captaincy calls that actually hit.<br>No more picking your team on vibes only — we move with data now.<br><br><b>GET THAT RANK UP.</b></div>', unsafe_allow_html=True)
-
+st.markdown("""
+<div class="center-text">
+FPL managers, tap in.<br>
+This isn’t just another stats platform.<br>
+This is your edge in every gameweek.<br>
+Data-driven picks. Smarter decisions.<br><br>
+<b>GET THAT RANK UP.</b>
+</div>
+""", unsafe_allow_html=True)
 # ===============================================
 # 🧹 PREP DATA
 # ===============================================
@@ -202,25 +211,30 @@ if rep_input:
 
 st.markdown("## ⚡ Top Players by Position")
 top5 = (
-    df_latest.sort_values(['position','predicted_next_points'], ascending=[True,False])
-    .groupby('position').head(5)
+    df_latest[df_latest["position"] != "Unknown"]
+    .sort_values(['position','predicted_next_points'], ascending=[True,False])
+    .groupby('position')
+    .head(5)
 )
 st.dataframe(top5[["first_name_gw","second_name_gw","position","predicted_next_points"]])
 
 st.markdown("## 💸 Best Value Players")
 vfm = (
-    df_latest.sort_values(['position','value_for_money'], ascending=[True,False])
-    .groupby('position').head(5)
+    df_latest[df_latest["position"] != "Unknown"]
+    .sort_values(['position','value_for_money'], ascending=[True,False])
+    .groupby('position')
+    .head(5)
 )
 st.dataframe(vfm[["first_name_gw","second_name_gw","value_for_money"]])
+
+
 
 st.markdown("## Team Difficulty")
 
 st.markdown("""
-**What this shows:**  
-Average difficulty of upcoming opponents.  
-Lower value = easier fixtures  
-Higher value = tougher fixtures
+Average difficulty of upcoming opponents  
+Lower = easier fixtures  
+Higher = tougher fixtures
 """)
 
 team_diff = (
@@ -236,59 +250,56 @@ team_diff = (
 
 st.dataframe(team_diff, use_container_width=True)
 
-st.markdown("## Team Predicted Points")
+st.markdown("## Team Expected Points")
 
 team_pts = (
     df_latest.groupby("team_name_final")["predicted_next_points"]
-    .mean()
+    .sum()
     .reset_index()
     .rename(columns={
         "team_name_final": "Team",
-        "predicted_next_points": "Avg Predicted Points"
+        "predicted_next_points": "Total Expected Points"
     })
-    .sort_values("Avg Predicted Points", ascending=False)
+    .sort_values("Total Expected Points", ascending=False)
 )
+
+st.dataframe(team_pts, use_container_width=True)
 
 st.dataframe(team_pts, use_container_width=True)
 import requests
 import pandas as pd
 import streamlit as st
-
 st.subheader("Upcoming Fixtures")
 
 try:
     url = "https://fantasy.premierleague.com/api/fixtures/"
-    response = requests.get(url)
+    fixtures = pd.DataFrame(requests.get(url).json())
 
-    if response.status_code == 200:
-        fixtures = pd.DataFrame(response.json())
+    fixtures = fixtures[fixtures['finished'] == False]
 
-        fixtures = fixtures[fixtures['finished'] == False]
-        next_gw = fixtures['event'].min()
-        gw_fixtures = fixtures[fixtures['event'] == next_gw]
+    next_gw = fixtures.sort_values("event")["event"].iloc[0]
 
-        team_map = {
-            1: "Arsenal", 2: "Aston Villa", 3: "Bournemouth",
-            4: "Brentford", 5: "Brighton", 6: "Chelsea",
-            7: "Crystal Palace", 8: "Everton", 9: "Fulham",
-            10: "Ipswich Town", 11: "Leicester City",
-            12: "Liverpool", 13: "Manchester City",
-            14: "Manchester United", 15: "Newcastle United",
-            16: "Nottingham Forest", 17: "Southampton",
-            18: "Tottenham Hotspur", 19: "West Ham United",
-            20: "Wolverhampton Wanderers"
-        }
+    gw_fixtures = fixtures[fixtures["event"] == next_gw]
 
-        gw_fixtures["Home Team"] = gw_fixtures["team_h"].map(team_map)
-        gw_fixtures["Away Team"] = gw_fixtures["team_a"].map(team_map)
+    team_map = {
+        1: "Arsenal", 2: "Aston Villa", 3: "Bournemouth",
+        4: "Brentford", 5: "Brighton", 6: "Chelsea",
+        7: "Crystal Palace", 8: "Everton", 9: "Fulham",
+        10: "Ipswich Town", 11: "Leicester City",
+        12: "Liverpool", 13: "Manchester City",
+        14: "Manchester United", 15: "Newcastle United",
+        16: "Nottingham Forest", 17: "Southampton",
+        18: "Tottenham Hotspur", 19: "West Ham United",
+        20: "Wolves"
+    }
 
-        fixtures_display = gw_fixtures[["Home Team", "Away Team"]]
+    gw_fixtures["Home"] = gw_fixtures["team_h"].map(team_map)
+    gw_fixtures["Away"] = gw_fixtures["team_a"].map(team_map)
 
-        st.write(f"Gameweek {int(next_gw)}")
-        st.dataframe(fixtures_display, use_container_width=True)
+    fixtures_display = gw_fixtures[["Home", "Away"]]
 
-    else:
-        st.warning("Fixtures unavailable")
+    st.write(f"Gameweek {int(next_gw)}")
+    st.dataframe(fixtures_display, use_container_width=True)
 
 except:
     st.warning("Fixtures unavailable")
