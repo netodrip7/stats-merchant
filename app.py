@@ -11,16 +11,16 @@ import unicodedata
 
 
 
-st.write("🚀 App starting...")
+st.write("App starting...")
 
 url = "https://raw.githubusercontent.com/netodrip7/stats-merchant/main/final_data.parquet"
 
 try:
     df = pd.read_parquet(url)
-    st.write("✅ Data loaded successfully")
+    st.write(" Data loaded successfully")
     st.write(df.shape)
 except Exception as e:
-    st.error(f"❌ Error loading data: {e}")
+    st.error(f" Error loading data: {e}")
     st.stop()
 
 # ===============================================
@@ -42,13 +42,13 @@ html, body, [class*="css"] {
     text-align: center;
     font-size: 72px;
     font-weight: 900;
-    color: #1f6feb;
+    color: #0b3d91;
     letter-spacing: 3px;
 }
 
 .tagline {
     text-align: center;
-    color: #9aa4b2;
+    color: #1e3a8a;
     font-size: 18px;
 }
 
@@ -63,7 +63,7 @@ html, body, [class*="css"] {
     max-width: 650px;
     margin: auto;
     line-height: 1.8;
-    color: #c9d1d9;
+    color: #1f4ed8;
 }
 
 [data-testid="stDataFrame"] {
@@ -95,7 +95,15 @@ tbody tr {
 
 st.markdown('<div class="title">STATS MERCHANT</div>', unsafe_allow_html=True)
 st.markdown('<div class="tagline">ball knowledge backed by stats</div>', unsafe_allow_html=True)
-st.markdown('<div class="smalltext">here for the first time? please wait for 30–50 seconds. it’ll be so much quicker next time.</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="center-text">
+FPL managers, tap in.<br>
+This ain’t just another stats site.<br>
+This is your differential factory.<br>
+We move with data, not vibes.<br>
+<b>GET THAT RANK UP.</b>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <div class="center-text">
@@ -130,7 +138,7 @@ df_latest["web_name_norm"] = df_latest["web_name_gw"].apply(normalize)
 # 🔮 PLAYER PREDICTION
 # ===============================================
 
-st.markdown("### 🔮 Enter a player’s name to see predicted points")
+st.markdown("### Enter a player’s name to see predicted points")
 player_input = st.text_input("", key="pred")
 
 if player_input:
@@ -152,7 +160,7 @@ if player_input:
 # 🧠 RECOMMENDATION
 # ===============================================
 
-st.markdown("### 🧠 Enter a player’s name to get recommendation")
+st.markdown("### Enter a player’s name to get recommendation")
 rec_input = st.text_input("", key="rec")
 
 if rec_input:
@@ -176,7 +184,7 @@ if rec_input:
 # 🔁 REPLACEMENTS
 # ===============================================
 
-st.markdown("### 🔁 Enter a player’s name for replacements")
+st.markdown("### Enter a player’s name for replacements")
 rep_input = st.text_input("", key="rep")
 
 if rep_input:
@@ -209,7 +217,7 @@ if rep_input:
 # 📊 ALWAYS VISIBLE TABLES
 # ===============================================
 
-st.markdown("## ⚡ Top Players by Position")
+st.markdown("##  Top Players by Position")
 top5 = (
     df_latest[df_latest["position"] != "Unknown"]
     .sort_values(['position','predicted_next_points'], ascending=[True,False])
@@ -218,7 +226,7 @@ top5 = (
 )
 st.dataframe(top5[["first_name_gw","second_name_gw","position","predicted_next_points"]])
 
-st.markdown("## 💸 Best Value Players")
+st.markdown("## Best Value Players")
 vfm = (
     df_latest[df_latest["position"] != "Unknown"]
     .sort_values(['position','value_for_money'], ascending=[True,False])
@@ -265,7 +273,7 @@ team_pts = (
 
 st.dataframe(team_pts, use_container_width=True)
 
-st.dataframe(team_pts, use_container_width=True)
+
 import requests
 import pandas as pd
 import streamlit as st
@@ -275,10 +283,19 @@ try:
     url = "https://fantasy.premierleague.com/api/fixtures/"
     fixtures = pd.DataFrame(requests.get(url).json())
 
-    fixtures = fixtures[fixtures['finished'] == False]
+    # Only future fixtures
+    fixtures = fixtures[fixtures['finished'] == False].copy()
 
-    next_gw = fixtures.sort_values("event")["event"].iloc[0]
+    # Convert kickoff time
+    fixtures['kickoff_time'] = pd.to_datetime(fixtures['kickoff_time'])
 
+    # Get NEXT fixture date
+    next_date = fixtures['kickoff_time'].min()
+
+    # Get gameweek for that date
+    next_gw = fixtures[fixtures['kickoff_time'] == next_date]['event'].iloc[0]
+
+    # Filter correct GW
     gw_fixtures = fixtures[fixtures["event"] == next_gw]
 
     team_map = {
@@ -296,10 +313,8 @@ try:
     gw_fixtures["Home"] = gw_fixtures["team_h"].map(team_map)
     gw_fixtures["Away"] = gw_fixtures["team_a"].map(team_map)
 
-    fixtures_display = gw_fixtures[["Home", "Away"]]
-
     st.write(f"Gameweek {int(next_gw)}")
-    st.dataframe(fixtures_display, use_container_width=True)
+    st.dataframe(gw_fixtures[["Home", "Away"]], use_container_width=True)
 
 except:
     st.warning("Fixtures unavailable")
