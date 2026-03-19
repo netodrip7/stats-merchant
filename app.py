@@ -97,23 +97,12 @@ st.markdown('<div class="title">STATS MERCHANT</div>', unsafe_allow_html=True)
 st.markdown('<div class="tagline">ball knowledge backed by stats</div>', unsafe_allow_html=True)
 st.markdown("""
 <div class="center-text">
-FPL managers, tap in.<br>
-This ain’t just another stats site.<br>
-This is your differential factory.<br>
-We move with data, not vibes.<br>
-<b>GET THAT RANK UP.</b>
+FPL managers, tap in. this ain’t just another stats <br>
+site, this is your differential factory We move with <br>
+         data, not vibes <b>GET THAT RANK UP.</b>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<div class="center-text">
-FPL managers, tap in.<br>
-This isn’t just another stats platform.<br>
-This is your edge in every gameweek.<br>
-Data-driven picks. Smarter decisions.<br><br>
-<b>GET THAT RANK UP.</b>
-</div>
-""", unsafe_allow_html=True)
 # ===============================================
 # 🧹 PREP DATA
 # ===============================================
@@ -274,47 +263,3 @@ team_pts = (
 st.dataframe(team_pts, use_container_width=True)
 
 
-import requests
-import pandas as pd
-import streamlit as st
-st.subheader("Upcoming Fixtures")
-
-try:
-    url = "https://fantasy.premierleague.com/api/fixtures/"
-    fixtures = pd.DataFrame(requests.get(url).json())
-
-    # Only future fixtures
-    fixtures = fixtures[fixtures['finished'] == False].copy()
-
-    # Convert kickoff time
-    fixtures['kickoff_time'] = pd.to_datetime(fixtures['kickoff_time'])
-
-    # Get NEXT fixture date
-    next_date = fixtures['kickoff_time'].min()
-
-    # Get gameweek for that date
-    next_gw = fixtures[fixtures['kickoff_time'] == next_date]['event'].iloc[0]
-
-    # Filter correct GW
-    gw_fixtures = fixtures[fixtures["event"] == next_gw]
-
-    team_map = {
-        1: "Arsenal", 2: "Aston Villa", 3: "Bournemouth",
-        4: "Brentford", 5: "Brighton", 6: "Chelsea",
-        7: "Crystal Palace", 8: "Everton", 9: "Fulham",
-        10: "Ipswich Town", 11: "Leicester City",
-        12: "Liverpool", 13: "Manchester City",
-        14: "Manchester United", 15: "Newcastle United",
-        16: "Nottingham Forest", 17: "Southampton",
-        18: "Tottenham Hotspur", 19: "West Ham United",
-        20: "Wolves"
-    }
-
-    gw_fixtures["Home"] = gw_fixtures["team_h"].map(team_map)
-    gw_fixtures["Away"] = gw_fixtures["team_a"].map(team_map)
-
-    st.write(f"Gameweek {int(next_gw)}")
-    st.dataframe(gw_fixtures[["Home", "Away"]], use_container_width=True)
-
-except:
-    st.warning("Fixtures unavailable")
