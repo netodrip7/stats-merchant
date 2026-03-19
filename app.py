@@ -8,7 +8,7 @@ import unicodedata
 # ⚡ LOAD PRE-PROCESSED DATA (FAST)
 # ===============================================
 
-url = "https://raw.githubusercontent.com/YOUR_USERNAME/stats-merchant/main/final_data.parquet"
+url = "https://raw.githubusercontent.com/netodrip7/stats-merchant/main/final_data.parquet"
 df = pd.read_parquet(url)
 
 # ===============================================
@@ -62,8 +62,7 @@ GET THAT RANK UP.
 # ===============================================
 # 🧹 PREP DATA
 # ===============================================
-
-df_latest = df.sort_values(['player_id', 'gameweek'], ascending=[True, False]).drop_duplicates('player_id')
+df_latest = df.copy()
 
 # ===============================================
 # 🔍 SEARCH HELPER
