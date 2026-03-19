@@ -604,7 +604,7 @@ if fixtures_df is not None and latest_gw and not team_map.empty:
     print(gw_fixtures)
 else:
     print("⚠️ Could not generate fixtures — fixture or team mapping missing.")
-for name, obj in globals().items():
+for name, obj in list(globals().items()):
     if isinstance(obj, pd.DataFrame):
         print(name, list(obj.columns)[:10])
 
@@ -703,7 +703,7 @@ else:
 # 5️⃣ DEBUG (OPTIONAL)
 # ===============================================
 print("\n🔍 Available DataFrames:")
-for name, obj in globals().items():
+for name, obj in list(globals().items()):
     if isinstance(obj, pd.DataFrame):
         print(name, list(obj.columns)[:10])
 # ======================================================
